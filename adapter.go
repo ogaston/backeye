@@ -37,7 +37,7 @@ func (a *Adapter) Receive() (string, error) {
 	return a.reader.ReadString('\n')
 }
 
-func (a *Adapter) Listen(ctx context.Context) {
+func (a *Adapter) Listen(ctx context.Context, onEvent func(event string)) {
 	for {
 		select {
 		case <-ctx.Done():
@@ -49,6 +49,9 @@ func (a *Adapter) Listen(ctx context.Context) {
 				return
 			}
 			fmt.Printf("[TRACKER] %s", msg)
+			if onEvent != nil {
+				onEvent(msg)
+			}
 		}
 	}
 }
