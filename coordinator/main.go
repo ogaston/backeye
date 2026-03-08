@@ -46,18 +46,19 @@ func main() {
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer cancel()
 
+	logger := NewLogger(collector)
+
 	node, err := NewSwarmNode(ctx, *location, collector)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	logger := NewLogger(collector)
 	go func() {
 		ticker := time.NewTicker(200 * time.Millisecond)
 		for {
 			select {
 			case <-ticker.C:
-				logger.Render()
+				logger.Render(node)
 			case <-ctx.Done():
 				return
 			}
@@ -72,6 +73,7 @@ func main() {
 				message := fmt.Sprintf("Published detection: %d face(s) at %q", count, node.Location)
 				logger.MarkPublished(message)
 			} else {
+				node.PublishDetection(ctx, 0)
 				logger.Update(fmt.Sprintf("No faces detected at %q", node.Location))
 			}
 

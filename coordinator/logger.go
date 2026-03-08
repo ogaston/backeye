@@ -91,7 +91,15 @@ func (d *Logger) MarkPublished(message string) {
 	d.lastMsgTime = time.Now()
 }
 
-func (d *Logger) Render() {
+func (d *Logger) RenderPeerStatus(node *SwarmNode) {
+	fmt.Println("\n\n All Peer Status:")
+	fmt.Println("===============================")
+	for _, peer := range node.Store.GetAllPeers() {
+		fmt.Printf(" %s | %-15s | %-5d | last seen: %s\n", shortID(peer.PeerID), peer.Location, peer.FaceCount, peer.LastSeen.Format("15:04:05"))
+	}
+}
+
+func (d *Logger) Render(node *SwarmNode) {
 	fmt.Println("\033[H\033[J")
 	d.mu.Lock()
 	defer d.mu.Unlock()
@@ -114,6 +122,10 @@ func (d *Logger) Render() {
 	fmt.Printf(" Last Data: %-20s\n", d.lastMessage)
 	fmt.Printf(" Updated:   %s\n", time.Now().Format("15:04:05"))
 	fmt.Printf(" Logs:      %d\n", len(d.collector.GetLogs()))
+
+	// show all peer status
+	d.RenderPeerStatus(node)
+
 	fmt.Println("-------------------------------")
 	fmt.Println(" Press Ctrl+C to exit          ")
 }
