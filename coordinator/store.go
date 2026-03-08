@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"sort"
 	"sync"
 	"time"
 )
@@ -59,6 +60,14 @@ func (s *PeerStore) GetAllPeers() []PeerInfo {
 	for _, p := range s.peers {
 		result = append(result, p)
 	}
+
+	sort.Slice(result, func(i, j int) bool {
+		if result[i].Location == result[j].Location {
+			return result[i].PeerID < result[j].PeerID
+		}
+		return result[i].Location < result[j].Location
+	})
+
 	return result
 }
 
